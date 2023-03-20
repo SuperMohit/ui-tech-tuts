@@ -1,3 +1,6 @@
+
+npm install @azure/storage-file-upload
+
 setup nuxt js 
 
 Sure, here are the steps to set up a basic Nuxt.js project:
