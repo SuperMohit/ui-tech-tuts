@@ -34,11 +34,12 @@ let's be nuxj.js assistance and help me to build a file uploader. This uploads f
 Sure, I'd be happy to help you build a file uploader in Nuxt.js that uploads files to an S3 bucket. Here's a step-by-step guide:
 
 Install the AWS SDK for JavaScript using npm:
-Copy code
+```
 npm install aws-sdk
+
+```
 In your Nuxt.js project, create a new file called awsConfig.js in the plugins directory. In this file, add the following code:
-php
-Copy code
+```
 import AWS from 'aws-sdk'
 
 AWS.config.update({
@@ -48,25 +49,24 @@ AWS.config.update({
 })
 
 export default AWS
+```
 In your nuxt.config.js file, add the following to load the awsConfig.js plugin:
-css
-Copy code
+```
 plugins: [
   { src: '~/plugins/awsConfig
 
+```
 
 
-Mohit Talniya
 upload to azure blob storage
 Sure, here are the steps to upload a file to Azure Blob Storage in a Nuxt.js app:
 
 Install the Azure Storage Blob package using npm:
-sql
-Copy code
+```
 npm install @azure/storage-blob
+```
 In your Nuxt.js project, create a new file called azureBlob.js in the plugins directory. In this file, add the following code:
-javascript
-Copy code
+```
 import { BlobServiceClient } from '@azure/storage-blob'
 
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING
@@ -79,11 +79,11 @@ Copy code
 plugins: [
   { src: '~/plugins/azureBlob.js', mode: 'client' }
 ]
+```
 Create a new Vue component that contains a form with a file input field and a submit button. When the user selects a file and submits the form, you can use the BlobServiceClient instance to upload the file to Azure Blob Storage.
 Here's an example of how you can implement this:
 
-php
-Copy code
+```
 <template>
   <div>
     <h1>Upload file to Azure Blob Storage</h1>
@@ -115,6 +115,7 @@ export default {
   }
 }
 </script>
+```
 Note that this example assumes that you have set the AZURE_STORAGE_CONNECTION_STRING environment variable to the connection string for your Azure Blob Storage account. You can obtain this connection string from the Azure portal. Also, make sure that the user running the Nuxt.js app has the necessary permissions to upload files to the Blob Storage container.
 
 
@@ -126,7 +127,7 @@ Yes, you can resume an interrupted file upload to Azure Blob Storage by using th
 
 Here's an updated example of the onSubmit method that supports resuming file uploads:
 
-javascript
+```
 async onSubmit() {
   const file = this.$refs.fileInput.files[0]
   const containerName = 'my-container'
@@ -144,6 +145,7 @@ async onSubmit() {
   }
   console.log('File uploaded successfully')
 }
+```
 In this updated example, we first check if the blob already exists in the container by calling the getProperties method on the BlockBlobClient instance. If the blob exists, we resume the upload by calling the uploadStream method with the offset parameter set to the size of the existing blob, and the sourceOffset parameter set to undefined to indicate that we want to resume the upload from where it left off. If the blob does not exist, we upload the file as usual using the uploadBrowserData method.
 
 Note that in order to resume an upload, the file being uploaded must have been sliced into chunks with the correct size and offset. This slicing can be done using the File API in the browser.
@@ -151,12 +153,7 @@ Note that in order to resume an upload, the file being uploaded must have been s
 
 
 
-Mohit Talniya
-update code for file chunking
-Sure, here's an updated example of the onSubmit method that supports chunking large files:
-
-javascript
-Copy code
+```
 async onSubmit() {
   const file = this.$refs.fileInput.files[0]
   const containerName = 'my-container'
@@ -199,6 +196,7 @@ async onSubmit() {
   }
   console.log('File uploaded successfully')
 }
+```
 In this updated example, we first check if the blob already exists in the container by calling the getProperties method on the BlockBlobClient instance. We then determine the size of the file and the maximum size of each block. We divide the file into blocks of the maximum size, and upload each block using the stageBlockWithResponse method of the BlockBlobClient instance. We keep track of the block IDs in an array.
 
 After all blocks have been uploaded, we call the commitBlockListWithResponse method to commit the blocks to the blob. If the blob already exists, we pass the etag of the existing blob to the modifiedAccessConditions property of the leaseAccessConditions parameter to ensure that the blob has not been modified since we last checked it. We then pass the array of block IDs to the commitBlockListWithResponse method.
@@ -212,8 +210,7 @@ Mohit Talniya
 can you refactor above code in smaller functions?
 Yes, of course! Here's a refactored version of the onSubmit method that breaks the file upload process into smaller functions:
 
-javascript
-Copy code
+```
 async onSubmit() {
   const file = this.$refs.fileInput.files[0]
   const containerName = 'my-container'
@@ -273,6 +270,7 @@ async function commitBlocks(blockBlobClient, blockIds, blobContentType, existing
     await blockBlobClient.commitBlockListWithResponse(blockIds, uploadOptions)
   }
 }
+```
 In this refactored version, we define three separate functions: getExistingBlob, uploadBlocks, and commitBlocks. The onSubmit function then calls these functions in sequence to upload the file to Azure Blob Storage.
 
 The getExistingBlob function checks if the blob already exists in the container and returns its properties, or returns null if the blob does not exist.
