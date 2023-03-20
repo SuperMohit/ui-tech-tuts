@@ -282,6 +282,7 @@ The commitBlocks function commits the blocks to the blob using the commitBlockLi
 Breaking the file upload process into smaller functions makes the code easier to understand and maintain, and also allows for easier testing and reuse
 
 ```
+import { BrowserFileStorage } from '@azure/storage-file-upload'
 async function onSubmit() {
   const file = this.$refs.fileInput.files[0]
   const containerName = 'my-container'
