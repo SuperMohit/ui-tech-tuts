@@ -323,4 +323,65 @@ async function onSubmit() {
 }
 
 ```
+```
+
+<template>
+  <div>
+    <input type="file" ref="fileInput" v-on:change="onFileSelected">
+    <button v-on:click="onUpload">Upload</button>
+  </div>
+</template>
+
+<script>
+import { BrowserFileStorage } from '@azure/storage-file-upload'
+
+export default {
+  methods: {
+    async onFileSelected() {
+      this.file = this.$refs.fileInput.files[0]
+    },
+    async onUpload() {
+      const containerName = 'my-container'
+      const blobName = this.file.name
+      const browserFileStorage = new BrowserFileStorage()
+      const transferProgress = {}
+      const maxRetries = 3
+      let retryCount = 0
+      while (retryCount < maxRetries) {
+        try {
+          await browserFileStorage.upload(this.file, {
+            maxSingleShotSize: 4 * 1024 * 1024, // 4 MB
+            blobHTTPHeaders: { blobContentType: this.file.type },
+            onProgress: progress => console.log(`Uploaded ${progress.loadedBytes} bytes`),
+            containerName,
+            blobName,
+            metadata: {},
+            transferProgress
+          })
+          console.log('File uploaded successfully')
+          break
+        } catch (error) {
+          console.log(`Upload failed: ${error}`)
+          if (transferProgress.uploadedBytes > 0) {
+            console.log(`Resuming upload from ${transferProgress.uploadedBytes} bytes`)
+          } else {
+            console.log(`Retrying upload... (${retryCount + 1} of ${maxRetries} retries)`)
+          }
+          retryCount++
+        }
+      }
+      if (retryCount === maxRetries) {
+        console.log(`Upload failed after ${maxRetries} retries`)
+      }
+    }
+  },
+  data() {
+    return {
+      file: null
+    }
+  }
+}
+</script>
+```
+
 
