@@ -280,3 +280,43 @@ The uploadBlocks function divides the file into blocks and uploads them to Azure
 The commitBlocks function commits the blocks to the blob using the commitBlockListWithResponse method of the BlockBlobClient instance. The function also checks if the blob already exists and passes the etag of the existing blob to the modifiedAccessConditions property of the leaseAccessConditions parameter if necessary.
 
 Breaking the file upload process into smaller functions makes the code easier to understand and maintain, and also allows for easier testing and reuse
+
+```
+async function onSubmit() {
+  const file = this.$refs.fileInput.files[0]
+  const containerName = 'my-container'
+  const blobName = file.name
+  const browserFileStorage = new BrowserFileStorage()
+  const transferProgress = {}
+  const maxRetries = 3
+  let retryCount = 0
+  while (retryCount < maxRetries) {
+    try {
+      await browserFileStorage.upload(file, {
+        maxSingleShotSize: 4 * 1024 * 1024, // 4 MB
+        blobHTTPHeaders: { blobContentType: file.type },
+        onProgress: progress => console.log(`Uploaded ${progress.loadedBytes} bytes`),
+        containerName,
+        blobName,
+        metadata: {},
+        transferProgress
+      })
+      console.log('File uploaded successfully')
+      break
+    } catch (error) {
+      console.log(`Upload failed: ${error}`)
+      if (transferProgress.uploadedBytes > 0) {
+        console.log(`Resuming upload from ${transferProgress.uploadedBytes} bytes`)
+      } else {
+        console.log(`Retrying upload... (${retryCount + 1} of ${maxRetries} retries)`)
+      }
+      retryCount++
+    }
+  }
+  if (retryCount === maxRetries) {
+    console.log(`Upload failed after ${maxRetries} retries`)
+  }
+}
+
+```
+
